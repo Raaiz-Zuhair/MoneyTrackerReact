@@ -25,34 +25,36 @@ const TaskForm = () => {
     e.preventDefault();
     if (name === "" || money === "") {
       alert("Please fil the fields!");
-    }
-    const item = {
-      id: uuidv4(),
-      name: name,
-      money: parseInt(money),
+    }else{
+      const item = {
+        id: uuidv4(),
+        name: name,
+        money: parseInt(money),
+      };
+  
+      addTask(item);
+      setName("");
+      setMoney("");
     };
-
-    addTask(item);
-    setName("");
-    setMoney("");
-  };
-
-  useEffect(() => {
-    if (fields.edit === true) {
-      setName(fields.item.name);
-      setMoney(fields.item.money);
+  
+    useEffect(() => {
+      if (fields.edit === true) {
+        setName(fields.item.name);
+        setMoney(fields.item.money);
+      }
+    }, [fields]);
+  
+    const deleteItem = () => {
+      deleteTask(fields.item.id);
+      setFields({
+        edit: false,
+        item: {},
+      });
+      setName("");
+      setMoney("");
+    };
     }
-  }, [fields]);
-
-  const deleteItem = () => {
-    deleteTask(fields.item.id);
-    setFields({
-      edit: false,
-      item: {},
-    });
-    setName("");
-    setMoney("");
-  };
+  
 
   const updateItem = () => {
     const newItem = {
