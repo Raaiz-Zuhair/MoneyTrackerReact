@@ -36,7 +36,9 @@ const TaskForm = () => {
       setName("");
       setMoney("");
     };
-  
+
+    }
+
     useEffect(() => {
       if (fields.edit === true) {
         setName(fields.item.name);
@@ -44,6 +46,8 @@ const TaskForm = () => {
       }
     }, [fields]);
   
+    
+
     const deleteItem = () => {
       deleteTask(fields.item.id);
       setFields({
@@ -53,8 +57,6 @@ const TaskForm = () => {
       setName("");
       setMoney("");
     };
-    }
-  
 
   const updateItem = () => {
     const newItem = {
