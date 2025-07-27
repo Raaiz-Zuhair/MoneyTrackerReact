@@ -14,12 +14,15 @@ export const TaskProvider = ({ children }) => {
     edit: false,
     item: {},
   });
+  const [loading, setLoading] = useState(true);
 
   const fetchTasks = async () => {
+    setLoading(true);
     const res = await axios.get(api);
     setTasks(res.data);
     const total = res.data.reduce((acc, curr) => acc + Number(curr.money), 0);
     setTotalMoney(total);
+    setLoading(false);
   };
 
   useEffect(() => {
