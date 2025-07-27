@@ -71,7 +71,8 @@ export const TaskProvider = ({ children }) => {
         setFields,
         deleteTask,
         updateTask,
-        clearAllTasks
+        clearAllTasks,
+        loading
       }}
     >
       {children}
