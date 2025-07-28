@@ -10,53 +10,71 @@ const api = "https://688609f6f52d34140f6b368a.mockapi.io/money-tracker";
 export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [totalMoney, setTotalMoney] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [editTask , setEditTask] = useState(false)
   const [fields, setFields] = useState({
     edit: false,
     item: {},
   });
 
   const fetchTasks = async () => {
-    const res = await axios.get(api);
-    setTasks(res.data);
-    const total = res.data.reduce((acc, curr) => acc + Number(curr.money), 0);
-    setTotalMoney(total);
+    try {
+      setLoading(true)
+      const res = await axios.get(api);
+      setTasks(res.data);
+      const total = res.data.reduce((acc, curr) => acc + Number(curr.money), 0);
+      setTotalMoney(total);
+      setEditTask(true)
+    } catch (err) {
+      console.log(`Error in fetching tasks ${err}`);
+    }finally{
+      setLoading(false)
+      setEditTask(false)
+    }
+
+  };
+
+  const addTask = async (item) => {
+    try {
+      const res = await axios.post(api, item);
+      setTasks((prev) => [res.data, ...prev]);
+      setEditTask(true)
+    } catch (err) {
+      console.log(`Error in adding tasks ${err}`);
+    }
+  };
+
+  const deleteTask = async (id) => {
+    try {
+      const res = await axios.delete(`${api}/${id}`);
+      const data = await res.data;
+      setTasks((prev) => prev.filter((item) => item.id !== id));
+      setEditTask(true)
+    } catch (err) {
+      console.log(`Error in Deleteing Task ${err}`);
+    } 
+  };
+
+  const updateTask = async (newItem) => {
+    try{
+    const res = await axios.put(`${api}/${newItem.id}`, newItem);
+    const data = res.data;
+    setTasks((prev) => prev.map((item) => (item.id === data.id ? data : item)));
+    setEditTask(true)
+  } catch (err) {
+    console.log(`Error in Updating Task ${err}`);
+  } 
+  };
+
+  const clearAllTasks = async () => {
+    const res = tasks.map((task) => axios.delete(`${api}/${task.id}`));
+    await Promise.all(res);
+    setEditTask(true)
   };
 
   useEffect(() => {
     fetchTasks();
-  }, [tasks, totalMoney, setTasks]);
-
-  const addTask = async (item) => {
-    const res = await axios.post(api, item);
-
-    setTasks((prev) => [res.data, ...prev]);
-  };
-
-  const deleteTask = async (id) => {
-    const res = await axios.delete(`${api}/${id}`);
-    const data = await res.data;
-    setTasks((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const updateTask = async (newItem) => {
-    const res = await axios.put(`${api}/${newItem.id}`, newItem);
-    const data = res.data;
-
-    setTasks((prev) => prev.map((item) => (item.id === data.id ? data : item)));
-
-    const oldMoney = Number(oldItem.money);
-    const newMoney = Number(data.money);
-    setTotalMoney((prev) => prev - oldMoney + newMoney);
-  };
-
-  const clearAllTasks = async () => {
-    
-    const res = tasks.map((task) => 
-      axios.delete(`${api}/${task.id}`)
-    );
-
-    await Promise.all(res);
-  }
+  }, [editTask]);
 
   return (
     <TaskContext
@@ -68,7 +86,9 @@ export const TaskProvider = ({ children }) => {
         setFields,
         deleteTask,
         updateTask,
-        clearAllTasks
+        clearAllTasks,
+        loading,
+        setLoading
       }}
     >
       {children}
